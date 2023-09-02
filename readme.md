@@ -134,3 +134,79 @@ db.sync()
 // ...
 ```
 De esta manera ya generamos una conexión a una base de datos con sequelize, creamos un modelo y lo sincronizamos en la base de datos. 
+
+# Sequelize CRUD
+
+Para crear usando sequelize usamos el método create. 
+Este método es de los modelos, asi que debemos asegurarnos que al usarlo estemos trabajando con un modelo. 
+
+## Create
+
+```js
+User.create({...fields});
+```
+Esto aplicado en una ruta de express, se vería de la siguiente forma.
+
+Por el body de la petición 
+> req.body
+
+Se enviará la información necesaria para crear el nuevo registro. 
+
+```js
+app.post('/users', async (req, res) => {
+  try{
+    const userData = req.body;
+    await User.create(userData);
+    res.status(201).end()
+  }catch(error){
+    res.status(400).json(error);
+  }
+})
+```
+## Read
+
+Esta operación tiene su equivalente en SQL a: 
+
+```sql
+SELECT * FROM users;
+```
+En sequelize usamos el médodo 
+> findAll( )
+
+Aplicado en una ruta de express sería: 
+
+```js
+ app.get('/users', async (req, res) => {
+  try{
+    const users = User.findAll();
+    res.json(users);
+  }catch(error){
+    res.status(400).json(error);
+  }
+ })
+```
+
+### Obteniendo por el id
+De igual manera tenemos la opción de obtener un registro por su pk (llave primaria). 
+
+En SQL 
+```sql
+SELECT * FROM users WHERE id={value}
+```
+En sequelize usaremos el metodo: 
+
+> findByPk( )
+
+En una ruta de express sería: 
+
+```js
+ app.get('/users/:id', async (req, res) => {
+  try{
+    const {id} = req.params;
+    const user = User.findByPk(id);
+    res.json(users);
+  }catch(error){
+    res.status(400).json(error);
+  }
+ })
+```
