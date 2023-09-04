@@ -12,7 +12,7 @@ db.authenticate()
   })
   .catch((error) => console.log(error));
 
-db.sync() // si no existe la tabla -> la crea / si ya existe hace nada 
+db.sync() // si no existe la tabla -> la crea / si ya existe hace nada
   .then(() => console.log("base de datos sincronizada"))
   .catch((error) => console.log(error));
 
@@ -26,13 +26,13 @@ app.get("/", (req, res) => {
   res.send("OK");
 });
 
-// CREATE user 
+// CREATE user
 // Cuando se haga una request a /users POST crear un usuario
 
-app.post('/users', async (req, res) => {
+app.post("/users", async (req, res) => {
   try {
     const { body } = req;
-    // mandar esta info a la base de datos 
+    // mandar esta info a la base de datos
     // * INSERT INTO users (username, email, password)
     const user = await User.create(body);
     res.status(201).json(user);
@@ -41,10 +41,10 @@ app.post('/users', async (req, res) => {
   }
 });
 
-// READ users 
-// GET /users -> devolver un json con todos los usuarios en la base de datos. 
+// READ users
+// GET /users -> devolver un json con todos los usuarios en la base de datos.
 // SELECT * FROM users;
-app.get('/users', async (req, res) => {
+app.get("/users", async (req, res) => {
   try {
     const users = await User.findAll();
     res.json(users);
@@ -56,11 +56,11 @@ app.get('/users', async (req, res) => {
 // SELECT * FROM users WHERE id=4;
 // GET /users/:id
 // ? como mandamos el id en este get
-// path params 
+// path params
 
-app.get('/users/:id', async (req, res) => {
+app.get("/users/:id", async (req, res) => {
   try {
-    const {id} = req.params; // params es un objeto {id: 4}
+    const { id } = req.params; // params es un objeto {id: 4}
     const user = await User.findByPk(id);
     res.json(user);
   } catch (error) {
@@ -71,14 +71,14 @@ app.get('/users/:id', async (req, res) => {
 // UPDATE ..... WHERE id = 5;
 // PUT '/users' --> path params
 // la información a actualizar por el body
-app.put('/users/:id', async (req, res) => {
+app.put("/users/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { body } = req;
-    // primer objeto es la info 
-    // segundo objeto es el where 
+    // primer objeto es la info
+    // segundo objeto es el where
     const user = await User.update(body, {
-      where: { id: id } 
+      where: { id: id },
     });
     res.json(user);
   } catch (error) {
@@ -86,21 +86,18 @@ app.put('/users/:id', async (req, res) => {
   }
 });
 
-app.delete('/users/:id', async (req, res) => {
+app.delete("/users/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
     await User.destroy({
-      where: {id}
+      where: { id },
     });
-    res.status(204).end() // termina con la petición
+    res.status(204).end(); // termina con la petición
   } catch (error) {
     res.status(400).json(error);
   }
-})
-
-
-
+});
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
