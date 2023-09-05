@@ -1,7 +1,7 @@
 # Conexión a base de datos y modelos
 
-Para realizar la conexión a una base de datos, vamos a usar un ORM. 
-Este ORM es sequelize, así que lo instalaremos junto a express y los controladores para postgres. 
+Para realizar la conexión a una base de datos, vamos a usar un ORM.
+Este ORM es sequelize, así que lo instalaremos junto a express y los controladores para postgres.
 
 ```shell
 npm i express sequelize pg pg-hstore
@@ -18,6 +18,9 @@ npm i express sequelize pg pg-hstore
 
   - /models
     - users.model.js
+
+- .gitignore
+- .env
 
 ## Creando una conexión a la base de datos
 
@@ -76,39 +79,42 @@ import db from "../utils/database.js";
 
 const User = db.define("users", {
   id: {
-    type : DataTypes.INTEGER,
+    type: DataTypes.INTEGER,
     autoIncrement: true, // autoincrementable
-    primaryKey:true,// primary key
+    primaryKey: true, // primary key
   },
   username: {
     type: DataTypes.STRING(30),
-    allowNull: false
+    allowNull: false,
   },
   email: {
-    type:DataTypes.STRING(50),
-    allowNull:false,
+    type: DataTypes.STRING(50),
+    allowNull: false,
     unique: true,
   },
   password: {
     type: DataTypes.STRING,
     allowNull: false,
-  }
+  },
 });
 
 export default User;
 ```
+
 ## Sincronizando el modelo
-Sincronizar el modelo significa que vamos a comparar los modelos 
-en sequelize con las tablas existentes en la base de datos. 
 
-para esto usaremos el método 
-> sync() 
+Sincronizar el modelo significa que vamos a comparar los modelos
+en sequelize con las tablas existentes en la base de datos.
 
-Este método preguntará: existe la tabla? 
-Si no existe, la crea. 
-Si ya existe, no realiza acción alguna. 
+para esto usaremos el método
 
-Vamos a app.js para ver la implementación 
+> sync()
+
+Este método preguntará: existe la tabla?
+Si no existe, la crea.
+Si ya existe, no realiza acción alguna.
+
+Vamos a app.js para ver la implementación
 
 ### app.js
 
@@ -116,7 +122,7 @@ Vamos a app.js para ver la implementación
 import express from "express";
 import db from "./utils/database.js";
 // import models here!
-import User from './models/users.model.js';
+import User from "./models/users.model.js";
 
 User;
 
@@ -124,89 +130,129 @@ db.authenticate()
   .then(() => console.log("base de datos conectada correctamente"))
   .catch((error) => console.log(error));
 
-// Sincroniza con la base de datos 
+// Sincroniza con la base de datos
 
 db.sync()
-  .then(() => console.log('Base de datos sincronizada'))
-  .catch(error => console.log(error));
+  .then(() => console.log("Base de datos sincronizada"))
+  .catch((error) => console.log(error));
 
 // continua el código del servidor d express
 // ...
 ```
-De esta manera ya generamos una conexión a una base de datos con sequelize, creamos un modelo y lo sincronizamos en la base de datos. 
+
+De esta manera ya generamos una conexión a una base de datos con sequelize, creamos un modelo y lo sincronizamos en la base de datos.
 
 # Sequelize CRUD
 
-Para crear usando sequelize usamos el método create. 
-Este método es de los modelos, asi que debemos asegurarnos que al usarlo estemos trabajando con un modelo. 
+Para crear usando sequelize usamos el método create.
+Este método es de los modelos, asi que debemos asegurarnos que al usarlo estemos trabajando con un modelo.
 
 ## Create
 
 ```js
-User.create({...fields});
+User.create({ ...fields });
 ```
+
 Esto aplicado en una ruta de express, se vería de la siguiente forma.
 
-Por el body de la petición 
+Por el body de la petición
+
 > req.body
 
-Se enviará la información necesaria para crear el nuevo registro. 
+Se enviará la información necesaria para crear el nuevo registro.
 
 ```js
-app.post('/users', async (req, res) => {
-  try{
+app.post("/users", async (req, res) => {
+  try {
     const userData = req.body;
     await User.create(userData);
-    res.status(201).end()
-  }catch(error){
+    res.status(201).end();
+  } catch (error) {
     res.status(400).json(error);
   }
-})
+});
 ```
+
 ## Read
 
-Esta operación tiene su equivalente en SQL a: 
+Esta operación tiene su equivalente en SQL a:
 
 ```sql
 SELECT * FROM users;
 ```
-En sequelize usamos el médodo 
+
+En sequelize usamos el médodo
+
 > findAll( )
 
-Aplicado en una ruta de express sería: 
+Aplicado en una ruta de express sería:
 
 ```js
- app.get('/users', async (req, res) => {
-  try{
+app.get("/users", async (req, res) => {
+  try {
     const users = User.findAll();
     res.json(users);
-  }catch(error){
+  } catch (error) {
     res.status(400).json(error);
   }
- })
+});
 ```
 
 ### Obteniendo por el id
-De igual manera tenemos la opción de obtener un registro por su pk (llave primaria). 
 
-En SQL 
+De igual manera tenemos la opción de obtener un registro por su pk (llave primaria).
+
+En SQL
+
 ```sql
 SELECT * FROM users WHERE id={value}
 ```
-En sequelize usaremos el metodo: 
+
+En sequelize usaremos el metodo:
 
 > findByPk( )
 
-En una ruta de express sería: 
+En una ruta de express sería:
 
 ```js
- app.get('/users/:id', async (req, res) => {
-  try{
-    const {id} = req.params;
+app.get("/users/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
     const user = User.findByPk(id);
     res.json(users);
-  }catch(error){
+  } catch (error) {
     res.status(400).json(error);
   }
- })
+});
 ```
+
+# Variables de entorno
+
+Instalar dotenv
+
+```shell
+npm i dotenv
+```
+
+En la raíz del proyecto creamos un archivo .env
+
+En .gitignore agregamos este archivo
+
+```
+node_modules
+.env
+```
+
+En el archivo .env agregamos las varaibles de entorno para la conexión a la base de datos.
+
+> Recuerda cambiar los valores por los tuyos.
+
+```shell
+DB_HOST=localhost
+DB_USERNAME=postgres
+DB_NAME=models_db
+DB_PORT=5432
+DB_PASSWORD=root
+```
+
+PAAS -> Platform as a Service
