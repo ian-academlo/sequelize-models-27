@@ -4,7 +4,11 @@ import db from "./utils/database.js";
 import User from "./models/users.model.js";
 import "dotenv/config";
 
+// importarmos el router de usuario
+import userRoutes from "./components/users/user.routes.js";
+
 User;
+
 // variable de entorno llamada PORT
 const PORT = process.env.PORT ?? 8000;
 // probar conexión con la base de datos
@@ -19,10 +23,23 @@ db.sync() // si no existe la tabla -> la crea / si ya existe hace nada
   .catch((error) => console.log(error));
 
 //
+
+// const whitelist = ['http://localhost:8000', 'http://localhost:5173'];
+// const corsOption = {
+//   origin: (origin, cb) => {
+//     if(!whitelist.includes(origin)){
+//       return cb(new Error('not allowed'))
+//     }
+//     cb(null, true);
+//   }
+// }
+
 const app = express();
 
 app.use(express.json());
 app.use(cors());
+
+app.use(userRoutes);
 
 // health check
 app.get("/", (req, res) => {
@@ -39,18 +56,6 @@ app.post("/users", async (req, res) => {
     // * INSERT INTO users (username, email, password)
     const user = await User.create(body);
     res.status(201).json(user);
-  } catch (error) {
-    res.status(400).json(error);
-  }
-});
-
-// READ users
-// GET /users -> devolver un json con todos los usuarios en la base de datos.
-// SELECT * FROM users;
-app.get("/users", async (req, res) => {
-  try {
-    const users = await User.findAll();
-    res.json(users);
   } catch (error) {
     res.status(400).json(error);
   }
@@ -105,3 +110,6 @@ app.delete("/users/:id", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
+
+// Escalabilidad
+// Mantenimiento
